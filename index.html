@@ -1,83 +1,86 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<script src="stereogram.js"></script>
-
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Stereogram</title>
 </head>
 <body>
-<table>
-<tr><td>
-<select onchange="displayRDS()" id="objectselector">
-<option value="depthMaps/3gear.jpg">Tricycle</option>
-<option value="depthMaps/B52.jpg">B52 Fighter Plane</option>
-<option value="depthMaps/Bee2.jpg">Honey Bee</option>
-<option value="depthMaps/Bio.jpg">Bio</option>
-<option value="depthMaps/Dino.jpg">Dino</option>
-<option value="depthMaps/Doldemo.jpg">Doldemo</option>
-<option value="depthMaps/Gitara.jpg">Gitara</option>
-<option value="depthMaps/Globe.jpg">Globe</option>
-<option value="depthMaps/Izba3.jpg">Izba3</option>
-<option value="depthMaps/Kruh.jpg">Kruh</option>
-<option value="depthMaps/Panak.jpg">Panak</option>
-<option value="depthMaps/Retazka.jpg">Retazka</option>
-<option value="depthMaps/Socha2.jpg">Socha2</option>
-<option value="depthMaps/Stolicka.jpg">Stolicka</option>
-<option value="depthMaps/Struna.jpg">Struna</option>
-<option value="depthMaps/Teapot.jpg">Teapot</option>
-<option value="depthMaps/Telo2.jpg">Telo2</option>
-<option value="depthMaps/Valec.jpg">Valec</option>
-<option value="depthMaps/Ventil.jpg">Ventil</option>
-<option value="text">Text</option>
+	<select onchange="renderStereogram()" id="texturePatternSelector"></select>
+	<select onchange="renderStereogram()" id="depthMapSelector"></select>
+	<input oninput="renderStereogram()" type="text" id="textInput" value="Hello" />
+	<div id="currentDepthMapContainer"></div>
+	<div id="stereogramContainer" width="40" height="40" align="center"></div>
 
-</select></td><td><select onchange="displayRDS()" id="patternselector">
-<option value="texturePatterns/TREE.jpg">Trees</option>
-<option value="texturePatterns/FIAL.jpg">Fial</option>
-<option value="texturePatterns/ZELENA.jpg">Zelena</option>
-<option value="texturePatterns/ZELENA2.jpg">Zelena2</option>
-<option value="texturePatterns/RANDOM2.jpg">Random2</option>
-<option value="texturePatterns/RAND4.jpg">Random4</option>
-<option value="texturePatterns/RAND7.jpg">Random7</option>
-</select></td></tr>
-<tr><td>
-<div id="currentObj"></div></td><td></td>
-</tr>
-</table>
-<input type="text" id="inptext" value="Hello" />
-<div id="disp" width="40" height="40" align=center></div>
+	<script src="stereogram.js"></script>
+	<script>
+		const depthMaps = [
+			{ title: 'Лошадь', filename: '1' },
+			{ title: 'Череп', filename: '3' },
+			{ title: 'Бабка', filename: '4' },
+			{ title: 'Череп2', filename: '5' },
+			{ title: 'Tricycle', filename: '3gear' },
+			{ title: 'B52 Fighter Plane', filename: 'B52' },
+			{ title: 'Honey Bee', filename: 'Bee2' },
+			{ title: 'Bio', filename: 'Bio' },
+			{ title: 'Dino', filename: 'Dino' },
+			{ title: 'Doldemo', filename: 'Doldemo' },
+			{ title: 'Gitara', filename: 'Gitara' },
+			{ title: 'Globe', filename: 'Globe' },
+			{ title: 'Izba3', filename: 'Izba3' },
+			{ title: 'Panak', filename: 'Panak' },
+			{ title: 'Retazka', filename: 'Retazka' },
+			{ title: 'Socha2', filename: 'Socha2' },
+			{ title: 'Stolicka', filename: 'Stolicka' },
+			{ title: 'Struna', filename: 'Struna' },
+			{ title: 'Telo2', filename: 'Telo2' },
+			{ title: 'Valec', filename: 'Valec' },
+			{ title: 'Ventil', filename: 'Ventil' },
+		];
+		const texturePatterns = [
+			{ title: 'Trees', filename: 'TREE' },
+			{ title: 'Fial', filename: 'FIAL' },
+			{ title: 'Zelena', filename: 'ZELENA' },
+			{ title: 'Zelena2', filename: 'ZELENA2' },
+			{ title: 'Random2', filename: 'RANDOM2' },
+			{ title: 'Random4', filename: 'RAND4' },
+			{ title: 'Random7', filename: 'RAND7' },
+		];
+		const updateContent = (container, element) => {
+			container.innerHTML = '';
+			container.appendChild(element);
+		};
+		const renderStereogram = () => {
+			const texturePattern = new Image();
+			const depthMap = new Image();
 
+			texturePattern.onload = () => {
+				const depthMapName = depthMapSelector.value;
+				depthMap.src = depthMapName !== 'text'
+					? `images/${depthMapName}`
+					: generateTextDepthMap(textInput.value, 150, 800, 600).toDataURL();
+			}
+
+			depthMap.onload = () => {
+		    const stereogram = generateStereogram(depthMap, texturePattern);
+				depthMap.height = 100;
+				depthMap.width = 100;
+				updateContent(stereogramContainer, stereogram);
+				updateContent(currentDepthMapContainer, depthMap);
+			}
+
+			texturePattern.src = `images/${texturePatternSelector.value}`;
+		}
+
+		depthMapSelector.innerHTML = depthMaps.map(o =>
+			`<option value="depthMaps/${o.filename}.jpg">${o.title}</option>`
+		).join('') + '<option value="text">Text</option>';
+
+		texturePatternSelector.innerHTML = texturePatterns.map(o =>
+			`<option value="texturePatterns/${o.filename}.jpg">${o.title}</option>`
+		).join('');
+
+		renderStereogram();
+	</script>
 </body>
-
-<script>
-
-function displayRDS(){
-var texture = new Image();
-texture.onload=function(){
-var depthMap = new Image();
-depthMap.onload = function(){
-    
-    var sgram = StereogramGenerator.generateTexturedSIRD(
-				depthMap,texture,
-				800, 600,
-				14, 3,
-				12, 0,				
-				72,72);
-	document.getElementById('disp').innerHTML="";
-	document.getElementById('disp').appendChild(sgram);	
-	
-	depthMap.height=100;
-	depthMap.width =100;
-document.getElementById('currentObj').innerHTML=""
-	document.getElementById('currentObj').appendChild(depthMap);	
-}
-if(document.getElementById('objectselector').value!="text"){
-depthMap.src='images/'+document.getElementById('objectselector').value;
-} else {
-depthMap.src=ImageManipulator.generateTextDepthMap(document.getElementById('inptext').value,150,800,600).toDataURL();;
-}
-
-
-}
-texture.src='images/'+document.getElementById('patternselector').value;
-}
-displayRDS();
-</script>
 </html>
